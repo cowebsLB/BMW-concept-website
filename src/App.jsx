@@ -6,6 +6,7 @@ import Electric from './pages/Electric.jsx';
 import Configurator from './pages/Configurator.jsx';
 import Innovation from './pages/Innovation.jsx';
 import Shop from './pages/Shop.jsx';
+import Showroom from './pages/Showroom.jsx';
 
 // Use environment-provided API key for image generation
 const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
@@ -249,6 +250,7 @@ const App = () => {
         <div className="flex-1 px-12 pt-32 pb-12 flex flex-col justify-between overflow-y-auto">
           <div className="space-y-6">
             {[
+              { label: 'Showroom', to: '/showroom' },
               { label: 'Models', to: '/models' },
               { label: 'Electric', to: '/electric' },
               { label: 'Configurator', to: '/configurator' },
@@ -499,6 +501,7 @@ const App = () => {
           }
         />
 
+        <Route path="/showroom" element={<Showroom />} />
         <Route path="/models" element={<Models />} />
         <Route path="/electric" element={<Electric />} />
         <Route path="/configurator" element={<Configurator />} />
