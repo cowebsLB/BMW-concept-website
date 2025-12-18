@@ -7,8 +7,8 @@ import Configurator from './pages/Configurator.jsx';
 import Innovation from './pages/Innovation.jsx';
 import Shop from './pages/Shop.jsx';
 
-const apiKey = '';
-const APP_ID = typeof window !== 'undefined' && window.__app_id ? window.__app_id : 'bmw-luxury-2025';
+// Use environment-provided API key for image generation
+const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 
 const useScroll = () => {
   const [scrollY, setScrollY] = useState(0);
@@ -78,26 +78,22 @@ const App = () => {
   const [heroImage, setHeroImage] = useState(null);
   const [isLoadingImage, setIsLoadingImage] = useState(true);
   const [isImageReady, setIsImageReady] = useState(false);
+  const isMountedRef = useRef(true);
+  const retryTimeoutRef = useRef();
 
   const heroImageY = scrollY * 0.5;
   const heroTextY = scrollY * 0.2;
   const heroOpacity = Math.max(0, 1 - scrollY / 700);
 
-  // #region agent log
-  fetch('http://127.0.0.1:7242/ingest/b49584fb-b28c-4d49-894a-a9b36b722c94', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      sessionId: 'debug-session',
-      runId: 'pre-fix',
-      hypothesisId: 'H1',
-      location: 'src/App.jsx:App',
-      message: 'App render state',
-      data: { isMenuOpen, scrollY },
-      timestamp: Date.now()
-    })
-  }).catch(() => {});
-  // #endregion
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+      if (retryTimeoutRef.current) {
+        clearTimeout(retryTimeoutRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (isMenuOpen) {
@@ -115,21 +111,15 @@ const App = () => {
       const prompt =
         'A ultra-luxury 2025 BMW electric concept car, futuristic design, sleek aerodynamics, glowing kidney grille, parked in a minimalist high-tech showroom with soft cinematic lighting, 8k resolution, professional photography style, deep metallic blue and silver colors, cinematic angle, raytracing.';
 
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/b49584fb-b28c-4d49-894a-a9b36b722c94', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          sessionId: 'debug-session',
-          runId: 'pre-fix',
-          hypothesisId: 'H2',
-          location: 'src/App.jsx:generateHeroImage',
-          message: 'Entering generateHeroImage',
-          data: { retryCount },
-          timestamp: Date.now()
-        })
-      }).catch(() => {});
-      // #endregion
+      // If no API key is configured, skip remote generation and use fallback image
+      if (!apiKey) {
+        if (!isMountedRef.current) return;
+        setIsLoadingImage(false);
+        setHeroImage(
+          'https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&q=80&w=2000'
+        );
+        return;
+      }
 
       try {
         const response = await fetch(
@@ -145,66 +135,26 @@ const App = () => {
         );
 
         if (!response.ok) {
-          // #region agent log
-          fetch('http://127.0.0.1:7242/ingest/b49584fb-b28c-4d49-894a-a9b36b722c94', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              sessionId: 'debug-session',
-              runId: 'pre-fix',
-              hypothesisId: 'H2',
-              location: 'src/App.jsx:generateHeroImage',
-              message: 'Non-OK response from image API',
-              data: { status: response.status },
-              timestamp: Date.now()
-            })
-          }).catch(() => {});
-          // #endregion
           throw new Error('Generation failed');
         }
 
         const result = await response.json();
         if (result.predictions?.[0]?.bytesBase64Encoded) {
+          if (!isMountedRef.current) return;
           setHeroImage(`data:image/png;base64,${result.predictions[0].bytesBase64Encoded}`);
           setIsLoadingImage(false);
         } else {
-          // #region agent log
-          fetch('http://127.0.0.1:7242/ingest/b49584fb-b28c-4d49-894a-a9b36b722c94', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              sessionId: 'debug-session',
-              runId: 'pre-fix',
-              hypothesisId: 'H3',
-              location: 'src/App.jsx:generateHeroImage',
-              message: 'Image API returned no bytes',
-              data: {},
-              timestamp: Date.now()
-            })
-          }).catch(() => {});
-          // #endregion
           throw new Error('No image returned');
         }
       } catch (err) {
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/b49584fb-b28c-4d49-894a-a9b36b722c94', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            sessionId: 'debug-session',
-            runId: 'pre-fix',
-            hypothesisId: 'H4',
-            location: 'src/App.jsx:generateHeroImage',
-            message: 'Error in generateHeroImage',
-            data: { retryCount, errorName: err?.name, errorMessage: err?.message },
-            timestamp: Date.now()
-          })
-        }).catch(() => {});
-        // #endregion
         if (retryCount < 5) {
           const delay = Math.pow(2, retryCount) * 1000;
-          setTimeout(() => generateHeroImage(retryCount + 1), delay);
+          retryTimeoutRef.current = setTimeout(() => {
+            if (!isMountedRef.current) return;
+            generateHeroImage(retryCount + 1);
+          }, delay);
         } else {
+          if (!isMountedRef.current) return;
           setIsLoadingImage(false);
           setHeroImage(
             'https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&q=80&w=2000'

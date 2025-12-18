@@ -1,22 +1,6 @@
 import React from 'react';
 
 const Models = () => {
-  // #region agent log
-  fetch('http://127.0.0.1:7242/ingest/b49584fb-b28c-4d49-894a-a9b36b722c94', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      sessionId: 'debug-session',
-      runId: 'pre-fix',
-      hypothesisId: 'H5',
-      location: 'src/pages/Models.jsx:Models',
-      message: 'Models page render',
-      data: {},
-      timestamp: Date.now()
-    })
-  }).catch(() => {});
-  // #endregion
-
   return (
     <main className="min-h-screen bg-[#050505] text-white pt-32 px-6">
       <section className="max-w-[1400px] mx-auto space-y-16">
