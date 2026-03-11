@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { showroomCars } from '../data/showroomCars';
+import { useExperience } from '../context/ExperienceContext.jsx';
 
 const categoryImages = {
   suv: 'https://images.unsplash.com/photo-1617814066438-b4712b9a3a45?auto=format&fit=crop&q=80&w=1200',
@@ -80,9 +81,53 @@ const getImageForCar = (car) => {
 
 const Showroom = () => {
   const [selectedCar, setSelectedCar] = useState(null);
+  const [query, setQuery] = useState('');
+  const [activeFilter, setActiveFilter] = useState('all'); // all | sedan | suv | electric | m
+  const [compareSelection, setCompareSelection] = useState([]);
+  const { toggleFavorite, isFavorite, track } = useExperience();
+
+  const toggleCompare = (car) => {
+    setCompareSelection((prev) => {
+      const exists = prev.find((c) => c.name === car.name && c.code === car.code);
+      if (exists) {
+        return prev.filter((c) => c !== exists);
+      }
+      if (prev.length >= 3) return prev; // limit to three
+      return [...prev, car];
+    });
+  };
+
+  const isInCompare = (car) =>
+    compareSelection.some((c) => c.name === car.name && c.code === car.code);
+
+  const normalizedQuery = query.trim().toLowerCase();
+
+  const filteredCars = showroomCars.filter((car) => {
+    const matchesQuery =
+      !normalizedQuery ||
+      car.name.toLowerCase().includes(normalizedQuery) ||
+      (car.code || '').toLowerCase().includes(normalizedQuery) ||
+      (car.years || '').toLowerCase().includes(normalizedQuery);
+
+    if (!matchesQuery) return false;
+
+    const type = (car.type || '').toLowerCase();
+    switch (activeFilter) {
+      case 'sedan':
+        return type.includes('sedan') || type.includes('gran coup') || type.includes('series');
+      case 'suv':
+        return type.includes('suv') || type.includes('sav') || type.includes('x ');
+      case 'electric':
+        return type.includes('electric') || type.includes('i4') || type.includes('ix') || type.includes('i ');
+      case 'm':
+        return type.includes('bmw m') || type.includes(' m ');
+      default:
+        return true;
+    }
+  });
 
   // Group cars by derived series for clearer browsing
-  const groupedBySeries = showroomCars.reduce((acc, car) => {
+  const groupedBySeries = filteredCars.reduce((acc, car) => {
     const series = getSeriesFromName(car.name);
     if (!acc[series]) acc[series] = [];
     acc[series].push(car);
@@ -104,19 +149,43 @@ const Showroom = () => {
           </p>
         </header>
 
-        <section className="flex flex-wrap gap-3 text-xs uppercase tracking-[0.15em] text-gray-400">
-          {['Sedan', 'SAV', 'Electric', 'Plug‑in Hybrid', 'Roadster', 'M'].map((tag) => (
-            <span
-              key={tag}
-              className="px-3 py-1 border border-white/10 rounded-full bg-white/5 backdrop-blur-sm"
-            >
-              {tag}
-            </span>
-          ))}
+        {/* Search + filters */}
+        <section className="flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
+          <div className="flex-1 flex items-center gap-3">
+            <input
+              type="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search by model, code, or years (e.g. 3 Series, iX, E21)"
+              className="w-full md:w-auto flex-1 rounded-full bg-black/60 border border-white/15 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div className="flex flex-wrap gap-2 text-[11px] uppercase tracking-[0.2em] text-gray-400">
+            {['all', 'sedan', 'suv', 'electric', 'm'].map((filter) => (
+              <button
+                key={filter}
+                type="button"
+                onClick={() => setActiveFilter(filter)}
+                className={`px-3 py-1 rounded-full border text-[10px] tracking-[0.2em] ${
+                  activeFilter === filter
+                    ? 'border-blue-500 bg-blue-500/20 text-blue-200'
+                    : 'border-white/10 bg-white/5 text-gray-400 hover:border-blue-400 hover:text-blue-200'
+                }`}
+              >
+                {filter === 'all' ? 'All' : filter}
+              </button>
+            ))}
+          </div>
         </section>
 
         {/* Product card grids grouped by series */}
         <section className="space-y-12 pt-4">
+          {seriesEntries.length === 0 && (
+            <p className="text-sm text-gray-500 pt-4">
+              No models match your search or filters. Try clearing filters or using a different
+              keyword.
+            </p>
+          )}
           {seriesEntries.map(([series, cars]) => (
             <div key={series} className="space-y-4">
               <div className="flex items-baseline justify-between gap-4">
@@ -128,38 +197,134 @@ const Showroom = () => {
                 </p>
               </div>
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {cars.map((car) => (
-                  <button
-                    key={`${series}-${car.name}-${car.code || ''}`}
-                    type="button"
-                    onClick={() => setSelectedCar(car)}
-                    className="group text-left rounded-2xl border border-white/10 bg-white/[0.02] overflow-hidden hover:border-blue-500/60 hover:bg-white/[0.04] transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500/70"
-                  >
-                    <div className="relative h-48 overflow-hidden">
-                      <img
-                        src={getImageForCar(car)}
-                        alt={car.name}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
-                      <div className="absolute bottom-4 left-4 right-4">
-                        <p className="text-xs uppercase tracking-[0.2em] text-blue-300 mb-1">
-                          {car.type}
-                        </p>
-                        <h3 className="text-lg font-semibold">{car.name}</h3>
-                        {(car.code || car.years) && (
-                          <p className="text-[11px] text-gray-300">
-                            {[car.code, car.years].filter(Boolean).join(' • ')}
-                          </p>
-                        )}
+                {cars.map((car) => {
+                  const id = `${car.name}|${car.code || ''}`;
+                  const favorite = isFavorite(id);
+                  return (
+                    <button
+                      key={`${series}-${car.name}-${car.code || ''}`}
+                      type="button"
+                      onClick={() => {
+                        setSelectedCar(car);
+                        track('showroom_open_detail', { name: car.name, code: car.code || null });
+                      }}
+                      className="group text-left rounded-2xl border border-white/10 bg-white/[0.02] overflow-hidden hover:border-blue-500/60 hover:bg-white/[0.04] transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500/70"
+                    >
+                      <div className="relative h-48 overflow-hidden">
+                        <img
+                          src={getImageForCar(car)}
+                          alt={car.name}
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+                        <div className="absolute bottom-4 left-4 right-4">
+                          <div className="flex items-center justify-between gap-2 mb-1">
+                            <p className="text-xs uppercase tracking-[0.2em] text-blue-300">
+                              {car.type}
+                            </p>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleFavorite(id, {
+                                  name: car.name,
+                                  type: car.type,
+                                  source: 'showroom'
+                                });
+                              }}
+                              className={`px-2 py-1 rounded-full border text-[10px] tracking-[0.15em] ${
+                                favorite
+                                  ? 'border-amber-400 bg-amber-400/20 text-amber-200'
+                                  : 'border-white/20 bg-black/40 text-gray-300 hover:border-amber-400 hover:text-amber-200'
+                              }`}
+                            >
+                              {favorite ? 'Saved' : 'Save'}
+                            </button>
+                          </div>
+                          <h3 className="text-lg font-semibold">{car.name}</h3>
+                          {(car.code || car.years) && (
+                            <p className="text-[11px] text-gray-300">
+                              {[car.code, car.years].filter(Boolean).join(' • ')}
+                            </p>
+                          )}
+                          <div className="mt-3 flex items-center justify-between text-[11px] text-gray-400">
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleCompare(car);
+                              }}
+                              className={`px-2 py-1 rounded-full border ${
+                                isInCompare(car)
+                                  ? 'border-blue-500 bg-blue-500/20 text-blue-200'
+                                  : 'border-white/15 bg-black/40 hover:border-blue-400 hover:text-blue-200'
+                              }`}
+                            >
+                              {isInCompare(car) ? 'In compare' : 'Compare'}
+                            </button>
+                            {car.type?.toLowerCase().includes('electric') && (
+                              <span className="px-2 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                                Electric
+                              </span>
+                            )}
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </button>
-                ))}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           ))}
         </section>
+
+        {/* Simple compare drawer */}
+        {compareSelection.length > 0 && (
+          <section className="mt-10 border border-white/10 rounded-2xl bg-black/60 p-4 md:p-6 space-y-4">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="font-mono text-xs text-blue-300">COMPARE</p>
+                <p className="text-sm text-gray-200">
+                  Viewing {compareSelection.length} model
+                  {compareSelection.length > 1 ? 's' : ''} side by side.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setCompareSelection([])}
+                className="text-[11px] font-bold uppercase tracking-[0.2em] border border-white/20 rounded-sm px-3 py-1 hover:bg-white/10 transition-colors"
+              >
+                Clear
+              </button>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="min-w-full text-xs text-left">
+                <thead className="bg-white/5 text-[10px] uppercase tracking-[0.2em] text-gray-400">
+                  <tr>
+                    <th className="px-3 py-2 font-semibold">Model</th>
+                    <th className="px-3 py-2 font-semibold">Type</th>
+                    <th className="px-3 py-2 font-semibold">Code</th>
+                    <th className="px-3 py-2 font-semibold">Years</th>
+                    <th className="px-3 py-2 font-semibold">Highlights</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/10">
+                  {compareSelection.map((car) => (
+                    <tr key={`compare-${car.name}-${car.code || ''}`}>
+                      <td className="px-3 py-2 text-gray-100">{car.name}</td>
+                      <td className="px-3 py-2 text-gray-400">{car.type}</td>
+                      <td className="px-3 py-2 text-gray-400">{car.code || '—'}</td>
+                      <td className="px-3 py-2 text-gray-400">{car.years || '—'}</td>
+                      <td className="px-3 py-2 text-gray-400">
+                        {car.specs?.highlights?.slice(0, 2).join(' • ') || car.specs?.description}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
 
         <p className="text-[11px] text-gray-500">
           Note: This showroom is a curated snapshot, not an exhaustive catalogue. You can extend the

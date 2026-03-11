@@ -1133,5 +1133,175 @@ export const showroomCars = [
         'Starting MSRP $68,400'
       ]
     }
+  },
+
+  // Series overview entries (headline models from the wider BMW range)
+  {
+    name: 'BMW 1 Series',
+    type: 'Hatchback',
+    specs: {
+      description: 'Compact premium hatchback that introduces the BMW experience in an urban-friendly format.',
+      highlights: [
+        'Efficient petrol and diesel engines',
+        'Available xDrive all-wheel drive on select models',
+        'Practical five-door layout with premium cabin'
+      ]
+    }
+  },
+  {
+    name: 'BMW 2 Series Active Tourer',
+    type: 'Compact MPV',
+    specs: {
+      description: 'Versatile family-focused BMW with a high seating position and flexible interior.',
+      highlights: [
+        'Spacious cabin with sliding rear bench',
+        'Modern driver assistance and connectivity',
+        'Efficient petrol, diesel and plug-in hybrid options in select markets'
+      ]
+    }
+  },
+  {
+    name: 'BMW 3 Series Sedan',
+    type: 'Sedan',
+    specs: {
+      description: 'The core BMW sports sedan, balancing comfort, technology and rear-wheel-drive dynamics.',
+      highlights: [
+        'Petrol and diesel engines with BMW TwinPower Turbo technology',
+        'Available xDrive all-wheel drive and plug-in hybrid variants',
+        'Benchmark handling in the premium mid-size segment'
+      ]
+    }
+  },
+  {
+    name: 'BMW 4 Series Gran Coupé',
+    type: 'Gran Coupe',
+    specs: {
+      description: 'Four-door coupé combining everyday usability with a dramatic roofline.',
+      highlights: [
+        'Frameless doors and stretched coupé silhouette',
+        'Engines ranging from efficient four-cylinders to BMW M Performance variants',
+        'Optional xDrive all-wheel drive for all-weather confidence'
+      ]
+    }
+  },
+  {
+    name: 'BMW 5 Series Sedan',
+    type: 'Sedan',
+    specs: {
+      description: 'Business-class sedan where long-distance comfort meets agile handling.',
+      highlights: [
+        'Broad range of petrol, diesel and plug-in hybrid powertrains',
+        'Advanced driver assistance and digital cockpit',
+        'Available BMW M Performance and full BMW M variants'
+      ]
+    }
+  },
+  {
+    name: 'BMW 6 Series Gran Turismo',
+    type: 'Gran Turismo',
+    specs: {
+      description: 'Long-distance GT with fastback design and lounge-like rear seating.',
+      highlights: [
+        'Gran Turismo body with wide-opening tailgate',
+        'Comfort-focused suspension and refined drivetrain options',
+        'Spacious rear legroom for extended journeys'
+      ]
+    }
+  },
+  {
+    name: 'BMW 7 Series Sedan',
+    type: 'Luxury Sedan',
+    specs: {
+      description: 'Flagship BMW luxury sedan showcasing design, comfort and technology.',
+      highlights: [
+        'Executive lounge seating and optional theatre-style rear entertainment',
+        'Choice of efficient petrol, diesel and plug-in hybrid drivetrains',
+        'Cutting-edge driver assistance and lighting technology'
+      ]
+    }
+  },
+  {
+    name: 'BMW 8 Series Coupé',
+    type: 'Coupé',
+    specs: {
+      description: 'Grand touring coupé that combines long-distance comfort with sports car intent.',
+      highlights: [
+        'Powerful six- and eight-cylinder engines',
+        'Luxurious 2+2 cabin with premium materials',
+        'Available xDrive all-wheel drive for assured traction'
+      ]
+    }
+  },
+  {
+    name: 'BMW 8 Series Convertible',
+    type: 'Convertible',
+    specs: {
+      description: 'Open-top expression of the 8 Series with a fabric roof and refined grand touring character.',
+      highlights: [
+        'Acoustic soft top that opens and closes in seconds',
+        'Powerful six- and eight-cylinder engines',
+        'Relaxed yet highly capable long-distance cruiser'
+      ]
+    }
+  },
+  {
+    name: 'BMW 8 Series Gran Coupé',
+    type: 'Gran Coupé',
+    specs: {
+      description: 'Four-door 8 Series with generous rear space and expressive proportions.',
+      highlights: [
+        'Wide stance and extended wheelbase for improved comfort',
+        'Engines from refined six-cylinders to high-performance BMW M',
+        'Optional xDrive and Integral Active Steering on select variants'
+      ]
+    }
+  },
+  {
+    name: 'BMW M135i xDrive',
+    type: 'Hatchback · BMW M',
+    specs: {
+      description: 'High-performance compact hatchback from BMW M with xDrive traction.',
+      highlights: [
+        'Powerful BMW M TwinPower Turbo four-cylinder engine',
+        'xDrive all-wheel drive with performance-oriented tuning',
+        'Sporty chassis calibration with M-specific components'
+      ]
+    }
+  },
+  {
+    name: 'BMW M3 Competition Touring',
+    type: 'Touring · BMW M',
+    specs: {
+      description: 'The M3 formula in a Touring body, blending everyday practicality with track-capable pace.',
+      highlights: [
+        '3.0-liter BMW M TwinPower Turbo inline 6-cylinder',
+        'M xDrive all-wheel drive with selectable modes',
+        'Spacious luggage area and split-fold rear seats'
+      ]
+    }
+  },
+  {
+    name: 'BMW M760e xDrive',
+    type: 'Luxury Sedan · BMW M · Plug-in Hybrid',
+    specs: {
+      description: 'Electrified BMW M flagship in the 7 Series lineup with plug-in hybrid performance.',
+      highlights: [
+        'Plug-in hybrid drivetrain with BMW M tuning',
+        'xDrive all-wheel drive for assured traction',
+        'Combines electric driving capability with long-range touring'
+      ]
+    }
+  },
+  {
+    name: 'BMW Z4 Roadster',
+    type: 'Roadster',
+    specs: {
+      description: 'Current-generation BMW Z4 with fabric roof and classic front-engine roadster layout.',
+      highlights: [
+        'Driver-focused cockpit with low seating position',
+        'Turbocharged four- and six-cylinder engine options',
+        'Rear-wheel drive handling with precise steering feel'
+      ]
+    }
   }
 ]

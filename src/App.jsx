@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Routes, Route, Link } from 'react-router-dom';
+import { Routes, Route, Link, useNavigate } from 'react-router-dom';
 import { Menu, X, ChevronRight, Zap, Cpu, ShieldCheck, ArrowRight, Search, User, Play } from 'lucide-react';
 import Models from './pages/Models.jsx';
 import Electric from './pages/Electric.jsx';
@@ -7,6 +7,9 @@ import Configurator from './pages/Configurator.jsx';
 import Innovation from './pages/Innovation.jsx';
 import Shop from './pages/Shop.jsx';
 import Showroom from './pages/Showroom.jsx';
+import TestDrive from './pages/TestDrive.jsx';
+import NotFound from './pages/NotFound.jsx';
+import { useExperience } from './context/ExperienceContext.jsx';
 
 // Use environment-provided API key for image generation
 const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
@@ -74,7 +77,11 @@ const Reveal = ({ children, className = '', delay = 0, direction = 'up' }) => {
 };
 
 const App = () => {
+  const navigate = useNavigate();
+  const { track, favorites } = useExperience();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isPaletteOpen, setIsPaletteOpen] = useState(false);
+  const [paletteQuery, setPaletteQuery] = useState('');
   const scrollY = useScroll();
   const [heroImage, setHeroImage] = useState(null);
   const [isLoadingImage, setIsLoadingImage] = useState(true);
@@ -170,6 +177,55 @@ const App = () => {
     generateHeroImage();
   }, [generateHeroImage]);
 
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      const isMeta = event.metaKey || event.ctrlKey;
+      if (isMeta && event.key.toLowerCase() === 'k') {
+        event.preventDefault();
+        setIsPaletteOpen((open) => {
+          const next = !open;
+          if (next) {
+            track('command_palette_opened', {});
+          }
+          return next;
+        });
+      }
+      if (event.key === 'Escape') {
+        setIsPaletteOpen(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [track]);
+
+  const paletteCommands = [
+    { label: 'Home – Vision Next', description: 'Back to the main concept hero', to: '/' },
+    { label: 'Showroom', description: 'Browse BMW models and generations', to: '/showroom' },
+    { label: 'Models', description: 'Overview of key BMW model lines', to: '/models' },
+    { label: 'Electric', description: 'BMW i lineup and charging ecosystem', to: '/electric' },
+    { label: 'Configurator', description: 'Experiment with a vision configurator', to: '/configurator' },
+    { label: 'Innovation', description: 'Software, materials and future roadmap', to: '/innovation' },
+    { label: 'Shop', description: 'Concept lifestyle and accessories', to: '/shop' },
+    { label: 'Test Drive', description: 'Request a BMW test drive experience', to: '/test-drive' }
+  ];
+
+  const normalizedPaletteQuery = paletteQuery.trim().toLowerCase();
+  const filteredCommands = paletteCommands.filter((cmd) => {
+    if (!normalizedPaletteQuery) return true;
+    return (
+      cmd.label.toLowerCase().includes(normalizedPaletteQuery) ||
+      (cmd.description || '').toLowerCase().includes(normalizedPaletteQuery)
+    );
+  });
+
+  const executeCommand = (cmd) => {
+    navigate(cmd.to);
+    track('command_palette_execute', { label: cmd.label, to: cmd.to });
+    setIsPaletteOpen(false);
+    setPaletteQuery('');
+  };
+
   return (
     <div className="min-h-screen bg-[#050505] text-white font-sans selection:bg-blue-500 selection:text-white overflow-x-hidden">
       <div
@@ -214,7 +270,16 @@ const App = () => {
 
           <div className="flex items-center space-x-6">
             <div className="hidden md:flex items-center space-x-6">
-              <button aria-label="Search" className="hover:text-blue-400 transition-colors">
+              <button
+                aria-label="Open command palette"
+                className="hover:text-blue-400 transition-colors"
+                type="button"
+                onClick={() => {
+                  setIsPaletteOpen(true);
+                  setPaletteQuery('');
+                  track('command_palette_opened', { via: 'nav_icon' });
+                }}
+              >
                 <Search className="w-5 h-5" />
               </button>
               <button aria-label="User Profile" className="hover:text-blue-400 transition-colors">
@@ -280,9 +345,9 @@ const App = () => {
               <a href="#" className="hover:text-white transition-colors">
                 Find a Dealer
               </a>
-              <a href="#" className="hover:text-white transition-colors">
+              <Link to="/test-drive" className="hover:text-white transition-colors">
                 Test Drive
-              </a>
+              </Link>
               <a href="#" className="hover:text-white transition-colors">
                 Financial Services
               </a>
@@ -294,6 +359,7 @@ const App = () => {
             <div className="relative h-40 rounded-lg overflow-hidden group cursor-pointer">
               <img
                 src="https://images.unsplash.com/photo-1556189250-72ba954e96d5?auto=format&fit=crop&q=80&w=800"
+                loading="lazy"
                 className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-110"
                 alt="Dealer Locator"
               />
@@ -307,6 +373,70 @@ const App = () => {
           </div>
         </div>
       </div>
+
+      {/* Command Palette */}
+      {isPaletteOpen && (
+        <div
+          className="fixed inset-0 z-[60] flex items-start justify-center pt-32 bg-black/70 backdrop-blur-sm px-4"
+          onClick={() => setIsPaletteOpen(false)}
+          aria-modal="true"
+          role="dialog"
+        >
+          <div
+            className="w-full max-w-xl bg-[#050505] border border-white/10 rounded-2xl shadow-2xl overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="border-b border-white/10 px-4 py-3 flex items-center gap-3">
+              <Search className="w-4 h-4 text-gray-500" />
+              <input
+                autoFocus
+                value={paletteQuery}
+                onChange={(e) => setPaletteQuery(e.target.value)}
+                placeholder="Search pages (e.g. showroom, electric, configurator)…"
+                className="flex-1 bg-transparent text-sm outline-none placeholder:text-gray-500"
+              />
+              <span className="hidden md:inline text-[10px] uppercase tracking-[0.2em] text-gray-500">
+                Ctrl / ⌘ + K
+              </span>
+            </div>
+            <div className="max-h-80 overflow-y-auto">
+              {filteredCommands.length === 0 && (
+                <p className="px-4 py-3 text-sm text-gray-500">No matches. Try a different keyword.</p>
+              )}
+              {filteredCommands.map((cmd) => (
+                <button
+                  key={cmd.to}
+                  type="button"
+                  onClick={() => executeCommand(cmd)}
+                  className="w-full text-left px-4 py-3 hover:bg-white/5 transition-colors flex flex-col gap-1"
+                >
+                  <span className="text-sm text-gray-100">{cmd.label}</span>
+                  {cmd.description && (
+                    <span className="text-[11px] text-gray-500">{cmd.description}</span>
+                  )}
+                </button>
+              ))}
+            </div>
+            {favorites.length > 0 && (
+              <div className="border-t border-white/10 px-4 py-2 bg-black/60">
+                <p className="text-[10px] uppercase tracking-[0.2em] text-gray-500 mb-1">
+                  Favorites snapshot
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {favorites.slice(0, 4).map((fav) => (
+                    <span
+                      key={fav.id}
+                      className="text-[11px] px-2 py-1 rounded-full border border-white/15 text-gray-300"
+                    >
+                      {fav.name}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Main Hero Section (always visible) */}
       <header className="relative h-[110vh] flex items-center justify-center overflow-hidden">
@@ -446,11 +576,12 @@ const App = () => {
                     <Reveal direction="right">
                       <div className="relative group overflow-hidden rounded-2xl">
                         <div className="absolute inset-0 bg-blue-600/20 mix-blend-color z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
-                        <img
-                          src="https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&q=80&w=1200"
-                          alt="Interior view showing advanced digital dashboard"
-                          className="w-full h-[600px] object-cover grayscale group-hover:grayscale-0 transition-all duration-[1.5s] ease-in-out transform group-hover:scale-105"
-                        />
+                      <img
+                        src="https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&q=80&w=1200"
+                        loading="lazy"
+                        alt="Interior view showing advanced digital dashboard"
+                        className="w-full h-[600px] object-cover grayscale group-hover:grayscale-0 transition-all duration-[1.5s] ease-in-out transform group-hover:scale-105"
+                      />
                         <div className="absolute top-10 right-10 z-20 bg-black/40 backdrop-blur-xl border border-white/10 p-4 rounded-xl translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-700 delay-100">
                           <div className="flex items-center space-x-3 text-xs font-mono text-blue-300">
                             <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
@@ -507,6 +638,8 @@ const App = () => {
         <Route path="/configurator" element={<Configurator />} />
         <Route path="/innovation" element={<Innovation />} />
         <Route path="/shop" element={<Shop />} />
+        <Route path="/test-drive" element={<TestDrive />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
 
       {/* Marquee */}
@@ -531,6 +664,7 @@ const App = () => {
             <div className="mb-12 hover:scale-110 transition-transform duration-500 cursor-pointer">
               <img
                 src="https://upload.wikimedia.org/wikipedia/commons/4/44/BMW.svg"
+                loading="lazy"
                 alt="BMW"
                 className="w-24 h-24 opacity-90"
               />
