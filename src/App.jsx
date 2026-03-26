@@ -716,7 +716,7 @@ const App = () => {
                     <Reveal delay={0.3}>
                       <p className="text-xl text-gray-400 leading-relaxed font-light border-l-2 border-blue-500/50 pl-6">
                         A cabin that breathes. Materials that heal. The 2025 Vision isn't just a
-                        space to sitâ€”it's an extension of your living space, constructed from
+                        space to sit - it's an extension of your living space, constructed from
                         sustainable, reactive matter.
                       </p>
                     </Reveal>
