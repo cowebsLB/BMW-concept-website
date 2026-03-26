@@ -135,3 +135,9 @@ The sidebar links and BMW logo (`/`) are standard `<Link>` components so navigat
 ## License
 
 This project is for portfolio / concept purposes and is **not** affiliated with or endorsed by BMW AG. BMW trademarks and logos are the property of their respective owner.
+
+## Legal Notice
+
+Some projects on this site are conceptual and may reference real brands. All trademarks and logos belong to their respective owners. These projects are for demonstration purposes only and are not affiliated with or endorsed by those brands.
+
+If you are a rights holder and would like this content removed, please contact me and it will be taken down promptly.

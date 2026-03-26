@@ -9,7 +9,13 @@ import Shop from './pages/Shop.jsx';
 import Showroom from './pages/Showroom.jsx';
 import TestDrive from './pages/TestDrive.jsx';
 import NotFound from './pages/NotFound.jsx';
+import Legal from './pages/Legal.jsx';
 import { useExperience } from './context/ExperienceContext.jsx';
+import {
+  LEGAL_DISCLAIMER,
+  TAKEDOWN_NOTICE,
+  UNOFFICIAL_BADGE
+} from './content/legalContent.js';
 
 // Use environment-provided API key for image generation
 const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
@@ -207,7 +213,8 @@ const App = () => {
     { label: 'Configurator', description: 'Experiment with a vision configurator', to: '/configurator' },
     { label: 'Innovation', description: 'Software, materials and future roadmap', to: '/innovation' },
     { label: 'Shop', description: 'Concept lifestyle and accessories', to: '/shop' },
-    { label: 'Test Drive', description: 'Request a BMW test drive experience', to: '/test-drive' }
+    { label: 'Test Drive', description: 'Request a BMW test drive experience', to: '/test-drive' },
+    { label: 'Legal', description: 'Read disclaimer and takedown policy', to: '/legal' }
   ];
 
   const normalizedPaletteQuery = paletteQuery.trim().toLowerCase();
@@ -264,6 +271,9 @@ const App = () => {
                 }`}
               >
                 BMW
+              </span>
+              <span className="hidden lg:inline-flex text-[9px] uppercase tracking-[0.2em] px-2 py-1 rounded border border-blue-300/40 text-blue-200">
+                {UNOFFICIAL_BADGE}
               </span>
             </Link>
           </div>
@@ -343,16 +353,16 @@ const App = () => {
           >
             <div className="grid grid-cols-2 gap-4 text-xs font-bold uppercase tracking-[0.15em] text-gray-500">
               <a href="#" className="hover:text-white transition-colors">
-                Find a Dealer
+                Concept Garage
               </a>
-              <Link to="/test-drive" className="hover:text-white transition-colors">
-                Test Drive
+              <Link to="/legal" className="hover:text-white transition-colors">
+                Legal
               </Link>
               <a href="#" className="hover:text-white transition-colors">
-                Financial Services
+                Ownership Lab
               </a>
               <a href="#" className="hover:text-white transition-colors">
-                BMW Life
+                Brand Story
               </a>
             </div>
 
@@ -484,7 +494,7 @@ const App = () => {
           <div className="inline-flex items-center space-x-3 bg-white/5 backdrop-blur-2xl border border-white/10 px-6 py-2 rounded-full mb-8">
             <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
             <span className="text-[10px] uppercase tracking-[0.3em] font-semibold text-blue-200">
-              World Premiere
+              {UNOFFICIAL_BADGE}
             </span>
           </div>
 
@@ -743,6 +753,7 @@ const App = () => {
         <Route path="/innovation" element={<Innovation />} />
         <Route path="/shop" element={<Shop />} />
         <Route path="/test-drive" element={<TestDrive />} />
+        <Route path="/legal" element={<Legal />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
 
@@ -778,9 +789,9 @@ const App = () => {
             className="flex flex-wrap justify-center gap-10 text-xs font-bold uppercase tracking-[0.2em] text-gray-500 mb-16"
             aria-label="Footer Links"
           >
-            <a href="#" className="hover:text-white transition-colors">
+            <Link to="/legal" className="hover:text-white transition-colors">
               Legal
-            </a>
+            </Link>
             <a href="#" className="hover:text-white transition-colors">
               Privacy
             </a>
@@ -794,9 +805,14 @@ const App = () => {
               Careers
             </a>
           </nav>
-          <p className="text-white/20 text-[10px] uppercase tracking-widest">
-            © 2025 BMW AG. Munich, Germany.
-          </p>
+          <div className="max-w-4xl text-center space-y-3">
+            <p className="text-[10px] uppercase tracking-[0.25em] text-blue-300">{UNOFFICIAL_BADGE}</p>
+            <p className="text-xs text-gray-400 leading-relaxed">{LEGAL_DISCLAIMER}</p>
+            <p className="text-xs text-gray-400 leading-relaxed">{TAKEDOWN_NOTICE}</p>
+            <p className="text-white/20 text-[10px] uppercase tracking-widest">
+              © 2026 COWebs.lb portfolio concept project.
+            </p>
+          </div>
         </div>
       </footer>
 

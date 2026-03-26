@@ -25,6 +25,11 @@ BMW Vision Next is a cinematic React single-page experience that showcases conce
 - Use `Ctrl + K` (or `Cmd + K`) to open the command palette.
 - For deployment to GitHub Pages project sites, use the production build output from `dist/`.
 
+## Legal Notice
+Some projects on this site are conceptual and may reference real brands. All trademarks and logos belong to their respective owners. These projects are for demonstration purposes only and are not affiliated with or endorsed by those brands.
+
+If you are a rights holder and would like this content removed, please contact me and it will be taken down promptly.
+
 ## Tech Stack
 - React 18
 - React Router
