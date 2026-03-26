@@ -893,6 +893,18 @@ export const showroomCars = [
     }
   },
   {
+    name: 'M2 Coupe',
+    type: 'Coupe - BMW M',
+    specs: {
+      description: 'A high-performance luxury sports coupe made for competition.',
+      highlights: [
+        '3.0-liter BMW M TwinPower Turbo inline 6-cylinder',
+        'Rear-wheel drive',
+        'Starting MSRP $69,000'
+      ]
+    }
+  },
+  {
     name: '430i Coupe',
     type: 'Coupe',
     specs: {
@@ -1305,3 +1317,4 @@ export const showroomCars = [
     }
   }
 ]
+
