@@ -125,7 +125,9 @@ The sidebar links and BMW logo (`/`) are standard `<Link>` components so navigat
 ## Deployment Notes
 
 - Build with `npm run build`; Vite outputs to `dist/`.
-- Ensure the static icons live in `public/` so favicon and manifest URLs like `/favicon-32x32.png` and `/android-chrome-512x512.png` resolve correctly.
+- GitHub Pages deployment is automated with `.github/workflows/deploy-pages.yml` on pushes to `main`.
+- Keep the Vite production `base` aligned with the repository path (`/BMW-concept-website/`) for project-site deployments.
+- Ensure the static icons live in `public/` so favicon and manifest URLs resolve in production builds.
 - If you provide `VITE_GEMINI_API_KEY` in the deployment environment, confirm the backend allows outgoing requests to the Google Generative Language API; otherwise the app will quietly use the fallback hero image.
 
 ---
