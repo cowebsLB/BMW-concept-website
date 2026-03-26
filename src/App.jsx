@@ -562,6 +562,45 @@ const App = () => {
             </section>
           }
         />
+        <Route
+          path="/index.html"
+          element={
+            <section className="relative py-32 px-6 z-20 -mt-20">
+              <div className="max-w-[1400px] mx-auto">
+                <Reveal>
+                  <h3 className="text-sm text-blue-400 uppercase tracking-[0.4em] mb-4">
+                    Core Intelligence
+                  </h3>
+                  <h2 className="text-4xl md:text-5xl font-light mb-16 max-w-2xl leading-tight">
+                    Technology that <span className="font-bold text-white">feels human</span>. <br />
+                    <span className="text-white/40">Powered by Neural Motion.</span>
+                  </h2>
+                </Reveal>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                  <GlassCard
+                    icon={<Zap />}
+                    title="Solid-State Energy"
+                    desc="1000km range. 10 minute charge. The end of range anxiety."
+                    delay={0.1}
+                  />
+                  <GlassCard
+                    icon={<Cpu />}
+                    title="Neural Interface"
+                    desc="The car learns your bio-rhythms, adjusting lighting and scent."
+                    delay={0.2}
+                  />
+                  <GlassCard
+                    icon={<ShieldCheck />}
+                    title="Guardian AI"
+                    desc="Predictive safety systems that see hazards before they exist."
+                    delay={0.3}
+                  />
+                </div>
+              </div>
+            </section>
+          }
+        />
       </Routes>
 
       {/* Split Parallax Showcase (Home only) */}
@@ -603,6 +642,71 @@ const App = () => {
                       <p className="text-xl text-gray-400 leading-relaxed font-light border-l-2 border-blue-500/50 pl-6">
                         A cabin that breathes. Materials that heal. The 2025 Vision isn't just a
                         space to sit—it's an extension of your living space, constructed from
+                        sustainable, reactive matter.
+                      </p>
+                    </Reveal>
+                    <Reveal delay={0.4}>
+                      <div className="grid grid-cols-2 gap-6 pt-8">
+                        {['Haptic Glass', 'Living Moss Filters', 'Sound Zones', 'OLED Roof'].map(
+                          (item, i) => (
+                            <div
+                              key={i}
+                              className="flex items-center space-x-3 border-b border-white/10 pb-4 group cursor-pointer"
+                            >
+                              <span className="text-blue-500 opacity-50 text-xs">
+                                0{i + 1}
+                              </span>
+                              <span className="text-sm font-medium tracking-widest uppercase group-hover:text-blue-400 transition-colors">
+                                {item}
+                              </span>
+                            </div>
+                          )
+                        )}
+                      </div>
+                    </Reveal>
+                  </div>
+                </div>
+              </div>
+            </section>
+          }
+        />
+        <Route
+          path="/index.html"
+          element={
+            <section className="py-32 bg-[#080808] overflow-hidden">
+              <div className="max-w-[1400px] mx-auto px-6">
+                <div className="flex flex-col lg:flex-row items-center gap-20">
+                  <div className="lg:w-1/2">
+                    <Reveal direction="right">
+                      <div className="relative group overflow-hidden rounded-2xl">
+                        <div className="absolute inset-0 bg-blue-600/20 mix-blend-color z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+                      <img
+                        src="https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&q=80&w=1200"
+                        loading="lazy"
+                        alt="Interior view showing advanced digital dashboard"
+                        className="w-full h-[600px] object-cover grayscale group-hover:grayscale-0 transition-all duration-[1.5s] ease-in-out transform group-hover:scale-105"
+                      />
+                        <div className="absolute top-10 right-10 z-20 bg-black/40 backdrop-blur-xl border border-white/10 p-4 rounded-xl translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-700 delay-100">
+                          <div className="flex items-center space-x-3 text-xs font-mono text-blue-300">
+                            <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                            <span>SYSTEM: ACTIVE</span>
+                          </div>
+                        </div>
+                      </div>
+                    </Reveal>
+                  </div>
+
+                  <div className="lg:w-1/2 space-y-8">
+                    <Reveal delay={0.2}>
+                      <h2 className="text-5xl md:text-7xl font-bold tracking-tighter">
+                        INNER <br />
+                        <span className="text-blue-500 italic font-serif">SANCTUARY</span>
+                      </h2>
+                    </Reveal>
+                    <Reveal delay={0.3}>
+                      <p className="text-xl text-gray-400 leading-relaxed font-light border-l-2 border-blue-500/50 pl-6">
+                        A cabin that breathes. Materials that heal. The 2025 Vision isn't just a
+                        space to sitâ€”it's an extension of your living space, constructed from
                         sustainable, reactive matter.
                       </p>
                     </Reveal>
