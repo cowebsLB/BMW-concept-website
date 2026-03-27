@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { showroomCars } from '../data/showroomCars';
 import { useExperience } from '../context/ExperienceContext.jsx';
 
@@ -16,6 +16,59 @@ const categoryImages = {
     'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&q=80&w=1200',
   default:
     'https://images.unsplash.com/photo-1511919884226-fd3cad34687c?auto=format&fit=crop&q=80&w=1200'
+};
+
+const WIKI_SUMMARY_API = 'https://en.wikipedia.org/api/rest_v1/page/summary/';
+
+const getWikiCandidates = (name = '') => {
+  const cleaned = name
+    .replace(/\(Generations?\)/gi, '')
+    .replace(/\(.*?\)/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  const first = cleaned.split(' ')[0] || '';
+  const candidates = new Set();
+
+  if (cleaned.toLowerCase().startsWith('bmw ')) {
+    candidates.add(cleaned);
+  } else if (cleaned.toLowerCase().startsWith('alpina ')) {
+    candidates.add(cleaned);
+    candidates.add(`BMW ${cleaned}`);
+  } else {
+    candidates.add(`BMW ${cleaned}`);
+  }
+
+  // Trim-level to family-level fallback (e.g. M340i -> 3 Series)
+  if (/^M?\d{3}/i.test(first)) {
+    const series = first.charAt(0).toUpperCase() === 'M' ? first.charAt(1) : first.charAt(0);
+    if (/\d/.test(series)) candidates.add(`BMW ${series} Series`);
+  }
+
+  if (/^X\d/i.test(first)) candidates.add(`BMW ${first.match(/^X\d/i)?.[0]}`);
+  if (/^iX/i.test(first)) candidates.add('BMW iX');
+  if (/^i\d/i.test(first)) candidates.add(`BMW ${first.match(/^i\d/i)?.[0]}`);
+  if (/^Z\d/i.test(first)) candidates.add(`BMW ${first.match(/^Z\d/i)?.[0]}`);
+  if (/^M\d/i.test(first)) candidates.add(`BMW ${first.match(/^M\d/i)?.[0]}`);
+  if (/^XM$/i.test(first)) candidates.add('BMW XM');
+
+  return [...candidates];
+};
+
+const fetchWikipediaImage = async (name) => {
+  const candidates = getWikiCandidates(name);
+  for (const candidate of candidates) {
+    try {
+      const response = await fetch(`${WIKI_SUMMARY_API}${encodeURIComponent(candidate)}`);
+      if (!response.ok) continue;
+      const data = await response.json();
+      const image = data?.thumbnail?.source;
+      if (image) return image;
+    } catch {
+      // Ignore and try next candidate.
+    }
+  }
+  return null;
 };
 
 // Derive a "series" label from the car name so we can group cards visually
@@ -53,8 +106,9 @@ const getSeriesFromName = (name = '') => {
   return first || 'Other';
 };
 
-const getImageForCar = (car) => {
+const getImageForCar = (car, modelImages) => {
   if (car.image) return car.image;
+  if (modelImages[car.name]) return modelImages[car.name];
   const type = (car.type || '').toLowerCase();
 
   if (type.includes('electric') || type.includes('i4') || type.includes('ix')) {
@@ -84,7 +138,36 @@ const Showroom = () => {
   const [query, setQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState('all'); // all | sedan | suv | electric | m
   const [compareSelection, setCompareSelection] = useState([]);
+  const [modelImages, setModelImages] = useState({});
   const { toggleFavorite, isFavorite, track } = useExperience();
+
+  const carsMissingImage = useMemo(() => showroomCars.filter((car) => !car.image), []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const resolveModelImages = async () => {
+      const resolved = {};
+      const chunkSize = 8;
+
+      for (let i = 0; i < carsMissingImage.length; i += chunkSize) {
+        const chunk = carsMissingImage.slice(i, i + chunkSize);
+        const results = await Promise.all(
+          chunk.map(async (car) => [car.name, await fetchWikipediaImage(car.name)])
+        );
+        for (const [name, image] of results) {
+          if (image) resolved[name] = image;
+        }
+      }
+
+      if (!cancelled) setModelImages(resolved);
+    };
+
+    resolveModelImages();
+    return () => {
+      cancelled = true;
+    };
+  }, [carsMissingImage]);
 
   const toggleCompare = (car) => {
     setCompareSelection((prev) => {
@@ -212,7 +295,7 @@ const Showroom = () => {
                     >
                       <div className="relative h-48 overflow-hidden">
                         <img
-                          src={getImageForCar(car)}
+                          src={getImageForCar(car, modelImages)}
                           alt={car.name}
                           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                         />
@@ -346,7 +429,7 @@ const Showroom = () => {
           >
             <div className="relative h-64 md:h-80 overflow-hidden">
               <img
-                src={getImageForCar(selectedCar)}
+                src={getImageForCar(selectedCar, modelImages)}
                 alt={selectedCar.name}
                 className="w-full h-full object-cover"
               />
